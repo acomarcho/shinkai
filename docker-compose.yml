@@ -1,0 +1,5 @@
+services:
+  shinkai-backend:
+    build: ./backend/
+    ports:
+      - '5000:5000'
