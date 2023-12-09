@@ -7,13 +7,18 @@ from color_matcher.normalizer import Normalizer
 import base64
 import uuid
 
+from flask_cors import CORS, cross_origin
+
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/")
 def hello_world():
-  return "<p>Hello, World!</p>"
+  return "Hello, world!"
 
 @app.route("/image", methods=['POST'])
+@cross_origin()
 def process_image():
   if request.method == 'POST':
     image_file = request.files['image']

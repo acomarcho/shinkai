@@ -1,26 +1,57 @@
+/* eslint-disable @next/next/no-img-element */
 import { Wrapper } from "@/components/wrapper";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import axios from "axios";
 
 export default function IndexPage() {
   const onDrop = useCallback(<T extends File>(acceptedFile: T[]) => {
-    console.log(acceptedFile);
+    setImage(acceptedFile[0]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  const [image, setImage] = useState<File | null>(null);
+  const [outputImageInBase64, setOutputImageInBase64] = useState("");
+
   let fileUploadStyle =
-    "w-full flex flex-col justify-center items-center h-[300px] border-black border-dashed border-[2px] rounded-2xl mt-[3rem]";
+    "w-full flex flex-col justify-center items-center h-[300px] border-black border-dashed border-[2px] rounded-2xl mt-[1rem] transition-all cursor-pointer hover:bg-sky-100 hover:border-sky-800";
   if (isDragActive) {
     fileUploadStyle += " bg-sky-100 border-sky-800";
   }
+
+  const onProcessImage = async () => {
+    if (!image) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+
+      if (image) {
+        formData.append("image", image);
+      }
+
+      type APIResponse = {
+        image: string;
+      };
+
+      const { data: responseData } = await axios.post<APIResponse>(
+        "http://localhost:5000/image",
+        formData
+      );
+
+      setOutputImageInBase64(responseData.image);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Wrapper>
       <>
         <h1 className="font-bold text-[2rem] text-sky-800">shinkai</h1>
         <p>Color grade your images, Makoto Shinkai style!</p>
-        <Divider />
         <div {...getRootProps()} className={fileUploadStyle}>
           <input {...getInputProps()} />
           {isDragActive ? (
@@ -34,20 +65,46 @@ export default function IndexPage() {
             <>
               <FileUploadIcon size="42" />
               <p className="mt-[1rem] font-bold text-[1.125rem]">
-                Drag and drop a file here, or click to select a file
+                {image
+                  ? `File uploaded: ${image.name}`
+                  : "Drag and drop a file here, or click to select a file"}
               </p>
             </>
           )}
         </div>
+        <button
+          className="mt-[1rem] p-[1rem] bg-sky-600 w-full text-white font-bold rounded-2xl disabled:bg-sky-300 transition-all hover:bg-sky-700"
+          disabled={!image}
+          onClick={() => onProcessImage()}
+        >
+          Process image!
+        </button>
+        {outputImageInBase64 && (
+          <>
+            <Divider className="my-[2rem]" />
+            <h1 className="font-bold text-[2rem] text-sky-800">
+              Here is your image!
+            </h1>
+            <img
+              src={`data:image/png;base64,${outputImageInBase64}`}
+              className="w-full block"
+              alt="Output image"
+            />
+          </>
+        )}
       </>
     </Wrapper>
   );
 }
 
-const Divider = () => {
-  return (
-    <div className="h-[3px] w-full bg-gradient-to-r my-[1rem] from-sky-800 to-sky-500" />
-  );
+const Divider = ({ className }: { className?: string }) => {
+  let dividerStyle =
+    "h-[3px] w-full bg-gradient-to-r my-[1rem] from-sky-800 to-sky-500";
+  if (className) {
+    dividerStyle += " " + className;
+  }
+
+  return <div className={dividerStyle} />;
 };
 
 const FileUploadIcon = ({
