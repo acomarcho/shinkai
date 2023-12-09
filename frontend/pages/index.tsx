@@ -37,6 +37,7 @@ export default function IndexPage() {
     label: "",
   });
   const [outputImageInBase64, setOutputImageInBase64] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   let fileUploadStyle =
     "w-full flex flex-col justify-center items-center h-[300px] border-black border-dashed border-[2px] rounded-2xl mt-[1rem] transition-all cursor-pointer hover:bg-sky-100 hover:border-sky-800";
@@ -50,6 +51,8 @@ export default function IndexPage() {
     }
 
     try {
+      setIsLoading(true);
+
       const formData = new FormData();
 
       formData.append("image", image);
@@ -67,6 +70,8 @@ export default function IndexPage() {
       setOutputImageInBase64(responseData.image);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,10 +115,10 @@ export default function IndexPage() {
         </div>
         <button
           className="mt-[1rem] p-[1rem] bg-sky-600 w-full text-white font-bold rounded-2xl disabled:bg-sky-300 transition-all hover:bg-sky-700"
-          disabled={!image}
+          disabled={!image || isLoading}
           onClick={() => onProcessImage()}
         >
-          Process image!
+          {!isLoading ? "Process image!" : "Loading..."}
         </button>
         {outputImageInBase64 && (
           <>
