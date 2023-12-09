@@ -34,7 +34,7 @@ const methods = [
   },
   {
     value: "mvgd",
-    label: "Multi-Variate Gaussian Distribution",
+    label: "Multi-Variate Gaussian Distribution (MVGD)",
   },
   {
     value: "hm-mvgd-hm",
