@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import { Wrapper } from "@/components/wrapper";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Select from "react-select";
@@ -24,6 +23,25 @@ const matchers = [
   },
 ];
 
+const methods = [
+  {
+    value: "hm",
+    label: "Histogram Matching (HM)",
+  },
+  {
+    value: "reinhard",
+    label: "Reinhard",
+  },
+  {
+    value: "mvgd",
+    label: "Multi-Variate Gaussian Distribution",
+  },
+  {
+    value: "hm-mvgd-hm",
+    label: "HM - MVGD - HM",
+  },
+];
+
 export default function IndexPage() {
   const onDrop = useCallback(<T extends File>(acceptedFile: T[]) => {
     setImage(acceptedFile[0]);
@@ -33,6 +51,10 @@ export default function IndexPage() {
 
   const [image, setImage] = useState<File | null>(null);
   const [selectedMatcher, setSelectedMatcher] = useState({
+    value: "",
+    label: "",
+  });
+  const [selectedMethod, setSelectedMethod] = useState({
     value: "",
     label: "",
   });
@@ -46,7 +68,7 @@ export default function IndexPage() {
   }
 
   const onProcessImage = async () => {
-    if (!image || !selectedMatcher.value) {
+    if (!image || !selectedMatcher.value || !selectedMethod.value) {
       return;
     }
 
@@ -57,6 +79,7 @@ export default function IndexPage() {
 
       formData.append("image", image);
       formData.append("matcher_filename", selectedMatcher.value);
+      formData.append("method", selectedMethod.value);
 
       type APIResponse = {
         image: string;
@@ -113,6 +136,19 @@ export default function IndexPage() {
             className="flex-1"
           />
         </div>
+        <div className="flex items-center gap-[1rem] w-full mt-[1rem]">
+          <p>Method:</p>
+          <Select
+            options={methods}
+            value={selectedMethod}
+            onChange={(v) => {
+              if (v) {
+                setSelectedMethod(v);
+              }
+            }}
+            className="flex-1"
+          />
+        </div>
         <button
           className="mt-[1rem] p-[1rem] bg-sky-600 w-full text-white font-bold rounded-2xl disabled:bg-sky-300 transition-all hover:bg-sky-700"
           disabled={!image || isLoading}
@@ -137,6 +173,10 @@ export default function IndexPage() {
     </Wrapper>
   );
 }
+
+const Wrapper = ({ children }: { children: JSX.Element }) => {
+  return <div className="max-w-[1160px] mx-auto p-[1rem]">{children}</div>;
+};
 
 const Divider = ({ className }: { className?: string }) => {
   let dividerStyle =
