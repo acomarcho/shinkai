@@ -63,7 +63,7 @@ export default function IndexPage() {
       };
 
       const { data: responseData } = await axios.post<APIResponse>(
-        "http://localhost:5000/image",
+        "http://host.docker.internal:5000/image",
         formData
       );
 

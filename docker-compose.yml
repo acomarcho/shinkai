@@ -2,4 +2,9 @@ services:
   shinkai-backend:
     build: ./backend/
     ports:
-      - '5000:5000'
+      - "5000:5000"
+
+  shinkai-frontend:
+    build: ./frontend/
+    ports:
+      - "3000:3000"
