@@ -2,7 +2,27 @@
 import { Wrapper } from "@/components/wrapper";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import Select from "react-select";
 import axios from "axios";
+
+const matchers = [
+  {
+    value: "beyond-the-clouds.jpg",
+    label: "The Place Promised in Our Early Days",
+  },
+  {
+    value: "garden-of-words.png",
+    label: "Garden of Words",
+  },
+  {
+    value: "kimi-no-na-wa.jpg",
+    label: "Your Name",
+  },
+  {
+    value: "tenki-no-ko.jpg",
+    label: "Weathering with You",
+  },
+];
 
 export default function IndexPage() {
   const onDrop = useCallback(<T extends File>(acceptedFile: T[]) => {
@@ -12,6 +32,10 @@ export default function IndexPage() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const [image, setImage] = useState<File | null>(null);
+  const [selectedMatcher, setSelectedMatcher] = useState({
+    value: "",
+    label: "",
+  });
   const [outputImageInBase64, setOutputImageInBase64] = useState("");
 
   let fileUploadStyle =
@@ -21,16 +45,15 @@ export default function IndexPage() {
   }
 
   const onProcessImage = async () => {
-    if (!image) {
+    if (!image || !selectedMatcher.value) {
       return;
     }
 
     try {
       const formData = new FormData();
 
-      if (image) {
-        formData.append("image", image);
-      }
+      formData.append("image", image);
+      formData.append("matcher_filename", selectedMatcher.value);
 
       type APIResponse = {
         image: string;
@@ -71,6 +94,19 @@ export default function IndexPage() {
               </p>
             </>
           )}
+        </div>
+        <div className="flex items-center gap-[1rem] w-full mt-[1rem]">
+          <p>Style:</p>
+          <Select
+            options={matchers}
+            value={selectedMatcher}
+            onChange={(v) => {
+              if (v) {
+                setSelectedMatcher(v);
+              }
+            }}
+            className="flex-1"
+          />
         </div>
         <button
           className="mt-[1rem] p-[1rem] bg-sky-600 w-full text-white font-bold rounded-2xl disabled:bg-sky-300 transition-all hover:bg-sky-700"

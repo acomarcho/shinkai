@@ -22,7 +22,7 @@ def hello_world():
 def process_image():
   if request.method == 'POST':
     image_file = request.files['image']
-    matcher_filename = request.files['matcher_filename']
+    matcher_filename = request.form['matcher_filename']
 
     input_file_path = f'./input/{uuid.uuid4()}-{image_file.filename}'
     image_file.save(input_file_path)
